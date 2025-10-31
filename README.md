@@ -55,15 +55,19 @@ The backend provides these REST endpoints:
 - Build manually with:
   ```bash
   cd backend
+  ./app.exe
   g++ -std=c++17 -I./Crow/include -I"C:/asio-1.28.0/include" main.cpp -o app.exe -lws2_32 -lwsock32 -lmswsock
   ```
+  This will amke backend server
 
 ### Frontend (React)
 - Edit files in `frontend/React/src/`
 - Main component is in `App.jsx`
 - Run development server:
   ```bash
-  cd frontend/React
+  cd Front_end
+  cd inventory-zen-37-main
   npm install
   npm run dev
   ```
+- This will start your frontend 
