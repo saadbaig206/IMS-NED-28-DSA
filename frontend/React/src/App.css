@@ -1,12 +1,90 @@
-.app {
-  text-align: center;
-  margin-top: 50px;
-  font-family: Arial, sans-serif;
+/* Reset & base styling */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-button {
-  margin: 10px;
-  padding: 10px 20px;
-  font-size: 16px;
+body, html {
+  height: 100%;
+  width: 100%;
+  background-color: #f3f4f6;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Centering container */
+.app-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* full screen height */
+  width: 100vw;  /* full screen width */
+}
+
+/* Card styling */
+.inventory-card {
+  background: white;
+  padding: 30px 40px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  width: 400px;
+  text-align: center;
+}
+
+/* Heading */
+.inventory-card h2 {
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Input section */
+.input-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.input-section input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+/* Button styling */
+.input-section button {
+  padding: 10px;
+  background-color: #007bff;
+  border: none;
+  color: white;
+  border-radius: 8px;
   cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.input-section button:hover {
+  background-color: #0056b3;
+}
+
+/* Item list styling */
+.item-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.item-list li {
+  display: flex;
+  justify-content: space-between;
+  background: #f9fafb;
+  margin-bottom: 10px;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+.item-list li .quantity {
+  font-weight: bold;
+  color: #007bff;
 }

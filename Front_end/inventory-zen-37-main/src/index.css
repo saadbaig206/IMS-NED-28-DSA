@@ -1,0 +1,145 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 215 25% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 15%;
+
+    --primary: 200 95% 45%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 200 90% 55%;
+
+    --secondary: 195 60% 50%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 210 30% 93%;
+    --muted-foreground: 215 15% 45%;
+
+    --accent: 185 80% 48%;
+    --accent-foreground: 0 0% 100%;
+
+    --success: 145 65% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 35 90% 55%;
+    --warning-foreground: 215 25% 15%;
+
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 215 20% 88%;
+    --input: 215 20% 88%;
+    --ring: 200 95% 45%;
+
+    --radius: 0.75rem;
+
+    --chart-1: 200 95% 45%;
+    --chart-2: 185 80% 48%;
+    --chart-3: 145 65% 45%;
+    --chart-4: 35 90% 55%;
+    --chart-5: 260 75% 60%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(200 95% 45%), hsl(185 80% 48%));
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(210 35% 97%));
+    
+    --shadow-sm: 0 1px 2px 0 hsl(215 25% 15% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(215 25% 15% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(215 25% 15% / 0.1);
+    --shadow-glow: 0 0 20px hsl(200 95% 45% / 0.15);
+  }
+
+  .dark {
+    --background: 215 30% 10%;
+    --foreground: 210 30% 95%;
+
+    --card: 215 28% 13%;
+    --card-foreground: 210 30% 95%;
+
+    --popover: 215 28% 13%;
+    --popover-foreground: 210 30% 95%;
+
+    --primary: 200 95% 55%;
+    --primary-foreground: 215 30% 10%;
+    --primary-glow: 200 90% 65%;
+
+    --secondary: 195 50% 45%;
+    --secondary-foreground: 210 30% 95%;
+
+    --muted: 215 25% 18%;
+    --muted-foreground: 215 15% 65%;
+
+    --accent: 185 70% 45%;
+    --accent-foreground: 210 30% 95%;
+
+    --success: 145 60% 50%;
+    --success-foreground: 215 30% 10%;
+
+    --warning: 35 85% 60%;
+    --warning-foreground: 215 30% 10%;
+
+    --destructive: 0 70% 60%;
+    --destructive-foreground: 210 30% 95%;
+
+    --border: 215 25% 22%;
+    --input: 215 25% 22%;
+    --ring: 200 95% 55%;
+
+    --chart-1: 200 95% 55%;
+    --chart-2: 185 70% 50%;
+    --chart-3: 145 60% 50%;
+    --chart-4: 35 85% 60%;
+    --chart-5: 260 70% 65%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(200 95% 55%), hsl(185 70% 50%));
+    --gradient-card: linear-gradient(180deg, hsl(215 28% 13%), hsl(215 25% 16%));
+    
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.2);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.3);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.4);
+    --shadow-glow: 0 0 25px hsl(200 95% 55% / 0.25);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+}
+
+@layer utilities {
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .gradient-card {
+    background: var(--gradient-card);
+  }
+
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+
+  .transition-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}

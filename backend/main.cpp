@@ -2,99 +2,143 @@
 #include "crow.h"
 #include <vector>
 #include <string>
+using namespace std;
 
-// Enable CORS manually
-void enableCORS(crow::response& res) {
-    res.add_header("Access-Control-Allow-Origin", "*");
-    res.add_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    res.add_header("Access-Control-Allow-Headers", "Content-Type");
-}
-
-// Sample data structure
-struct Todo {
+struct Item {
     int id;
-    std::string text;
-    bool completed;
-    
+    string name;
+    string description;
+    int quantity;
+    double price;
+    string category;
+    string created_at;
+    string updated_at;
+
+    static string get_current_time() {
+        time_t now = time(0);
+        struct tm tstruct;
+        char buf[80];
+        tstruct = *localtime(&now);
+        strftime(buf, sizeof(buf), "%Y-%m-%d %X", &tstruct);
+        return string(buf);
+    }
+
     crow::json::wvalue to_json() const {
-        crow::json::wvalue json;
-        json["id"] = id;
-        json["text"] = text;
-        json["completed"] = completed;
-        return json;
+        crow::json::wvalue obj;
+        obj["id"] = id;
+        obj["name"] = name;
+        obj["description"] = description;
+        obj["quantity"] = quantity;
+        obj["price"] = price;
+        obj["category"] = category;
+        obj["created_at"] = created_at;
+        obj["updated_at"] = updated_at;
+        return obj;
+    }
+};
+
+// ✅ Global CORS Enabler Middleware
+struct CORS {
+    struct context {};
+    void before_handle(crow::request& req, crow::response& res, context&) {
+        if (req.method == "OPTIONS"_method) {
+            res.add_header("Access-Control-Allow-Origin", "*");
+            res.add_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+            res.add_header("Access-Control-Allow-Headers", "Content-Type");
+            res.end();
+        }
+    }
+    void after_handle(crow::request&, crow::response& res, context&) {
+        res.add_header("Access-Control-Allow-Origin", "*");
+        res.add_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        res.add_header("Access-Control-Allow-Headers", "Content-Type");
     }
 };
 
 int main() {
-    crow::SimpleApp app;
-    std::vector<Todo> todos = {
-        {1, "Learn C++", true},
-        {2, "Learn React", true},
-        {3, "Build Full-stack App", false}
-    };
-    int next_id = 4;
+    crow::App<CORS> app;  // ✅ enable middleware globally
+    vector<Item> inventory;
 
-    // Root route
-    CROW_ROUTE(app, "/")([]() {
-        return "C++ Crow Backend API";
+    // GET all items
+    CROW_ROUTE(app, "/api/items")
+    ([&inventory]() {
+        crow::json::wvalue result;
+        vector<crow::json::wvalue> items;
+        for (const auto &item : inventory) {
+            items.push_back(item.to_json());
+        }
+        result["items"] = std::move(items);
+        return result;
     });
 
-    // Get all todos
-    CROW_ROUTE(app, "/api/todos").methods("GET"_method)([&todos]() {
-        crow::json::wvalue response;
-        std::vector<crow::json::wvalue> todo_list;
-        for (const auto& todo : todos) {
-            todo_list.push_back(todo.to_json());
-        }
-        response["todos"] = std::move(todo_list);
-        return response;
-    });
+    // POST new item
+    CROW_ROUTE(app, "/api/items").methods("POST"_method)
+    ([&inventory](const crow::request& req) {
+        auto data = crow::json::load(req.body);
+        if (!data)
+            return crow::response(400, "Invalid JSON");
 
-    // Add new todo
-    CROW_ROUTE(app, "/api/todos").methods("POST"_method)
-    ([&todos, &next_id](const crow::request& req) {
-        auto x = crow::json::load(req.body);
-        if (!x) {
-            return crow::response(400);
-        }
+        if (!data.has("name") || !data.has("quantity"))
+            return crow::response(400, "Missing required fields");
+
+        Item newItem;
+        newItem.id = inventory.empty() ? 1 : (inventory.back().id + 1);
+        newItem.name = data["name"].s();
+        newItem.description = data.has("description") ? std::string(data["description"].s()) : std::string("");
+        newItem.quantity = data["quantity"].i();
+        newItem.price = data.has("price") ? data["price"].d() : 0.0;
+        newItem.category = data.has("category") ? std::string(data["category"].s()) : std::string("Uncategorized");
+        newItem.created_at = Item::get_current_time();
+        newItem.updated_at = newItem.created_at;
         
-        Todo new_todo;
-        new_todo.id = next_id++;
-        new_todo.text = x["text"].s();
-        new_todo.completed = false;
-        todos.push_back(new_todo);
-        
-        return crow::response(201, new_todo.to_json());
+        inventory.push_back(newItem);
+        return crow::response(201, newItem.to_json());
     });
 
-    // Toggle todo status
-    CROW_ROUTE(app, "/api/todos/<int>").methods("PUT"_method)
-    ([&todos](int id) {
-        for (auto& todo : todos) {
-            if (todo.id == id) {
-                todo.completed = !todo.completed;
-                return crow::response(200, todo.to_json());
-            }
+    // Update item
+    CROW_ROUTE(app, "/api/items/<int>").methods("PUT"_method)
+    ([&inventory](const crow::request& req, int id) {
+        auto it = find_if(inventory.begin(), inventory.end(),
+            [id](const Item& item) { return item.id == id; });
+            
+        if (it == inventory.end()) {
+            return crow::response(404, "Item not found");
         }
-        return crow::response(404);
+
+        auto data = crow::json::load(req.body);
+        if (!data)
+            return crow::response(400, "Invalid JSON");
+
+        if (data.has("name")) it->name = data["name"].s();
+        if (data.has("description")) it->description = data["description"].s();
+        if (data.has("quantity")) it->quantity = data["quantity"].i();
+        if (data.has("price")) it->price = data["price"].d();
+        if (data.has("category")) it->category = data["category"].s();
+        it->updated_at = Item::get_current_time();
+
+        return crow::response(200, it->to_json());
     });
 
-    // Delete todo
-    CROW_ROUTE(app, "/api/todos/<int>").methods("DELETE"_method)
-    ([&todos](int id) {
-        auto it = std::find_if(todos.begin(), todos.end(),
-            [id](const Todo& t) { return t.id == id; });
-        if (it != todos.end()) {
-            todos.erase(it);
-            return crow::response(204);
+    // Delete item
+    CROW_ROUTE(app, "/api/items/<int>").methods("DELETE"_method)
+    ([&inventory](int id) {
+        auto it = find_if(inventory.begin(), inventory.end(),
+            [id](const Item& item) { return item.id == id; });
+            
+        if (it == inventory.end()) {
+            return crow::response(404, "Item not found");
         }
-        return crow::response(404);
+
+        inventory.erase(it);
+        return crow::response(204);
     });
 
-    // Handle preflight requests (CORS)
+    // Optional: allow browser preflight
     CROW_ROUTE(app, "/<path>").methods("OPTIONS"_method)
     ([](const crow::request&, crow::response& res, std::string) {
-        enableCORS(res);
+        res.add_header("Access-Control-Allow-Origin", "*");
+        res.add_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        res.add_header("Access-Control-Allow-Headers", "Content-Type");
         res.end();
     });
 
